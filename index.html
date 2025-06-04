@@ -9,57 +9,49 @@
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     }
-    /* Style the hidden file input button via label */
     input[type="file"] {
       display: none;
     }
     label.file-upload {
-      background-color: #4f46e5; /* indigo-600 */
+      background-color: #4f46e5;
       color: white;
       padding: 0.5rem 1rem;
-      border-radius: 0.375rem; /* rounded-md */
+      border-radius: 0.375rem;
       cursor: pointer;
       transition: background-color 0.3s ease;
       user-select: none;
       display: inline-block;
+      margin-right: 1rem;
     }
     label.file-upload:hover {
-      background-color: #4338ca; /* indigo-700 */
+      background-color: #4338ca;
     }
   </style>
 </head>
 <body class="min-h-screen font-sans text-gray-700">
 
-  <!-- Header -->
   <header class="bg-white shadow-md py-6 px-8">
     <h1 class="text-3xl font-bold text-indigo-800">Assignments</h1>
   </header>
 
-  <!-- Main content container -->
   <main class="p-8 space-y-8 max-w-4xl mx-auto">
 
-    <!-- Assignment row template -->
     <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
       <h3 class="text-xl font-semibold text-indigo-700 mb-4 sm:mb-0 sm:w-48">Assignment 1</h3>
 
-      <form class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="event.preventDefault(); alert('Submission received for Assignment 1!');">
+      <form id="form1" class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="handleSubmit(event, 'form1')">
 
-        <!-- File upload -->
         <label for="file1" class="file-upload">Upload File</label>
         <input id="file1" type="file" />
 
-        <!-- Or text -->
-        <span class="hidden sm:inline-block text-gray-400 font-semibold">or</span>
-
-        <!-- Link input -->
         <input
           type="url"
-          placeholder="Paste submission link here"
+          id="link1"
+          placeholder="Or paste submission link here"
           class="flex-grow border border-gray-300 rounded px-4 py-2 mt-4 sm:mt-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           aria-label="Submission link"
         />
 
-        <!-- Submit button -->
         <button
           type="submit"
           class="mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors"
@@ -68,22 +60,19 @@
         </button>
       </form>
     </section>
-
-    <!-- Duplicate above section for more assignments -->
 
     <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
       <h3 class="text-xl font-semibold text-indigo-700 mb-4 sm:mb-0 sm:w-48">Assignment 2</h3>
 
-      <form class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="event.preventDefault(); alert('Submission received for Assignment 2!');">
+      <form id="form2" class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="handleSubmit(event, 'form2')">
 
         <label for="file2" class="file-upload">Upload File</label>
         <input id="file2" type="file" />
 
-        <span class="hidden sm:inline-block text-gray-400 font-semibold">or</span>
-
         <input
           type="url"
-          placeholder="Paste submission link here"
+          id="link2"
+          placeholder="Or paste submission link here"
           class="flex-grow border border-gray-300 rounded px-4 py-2 mt-4 sm:mt-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           aria-label="Submission link"
         />
@@ -97,16 +86,41 @@
       </form>
     </section>
 
-    <!-- Add more assignments here by copying the above section and updating titles and IDs -->
-
   </main>
 
-  <!-- Fixed footer with your name and department -->
   <div
     class="fixed bottom-4 right-4 text-sm text-gray-600 bg-white bg-opacity-90 px-4 py-2 rounded shadow-md select-none"
   >
     Aakash Thapa, Department: IBM
   </div>
 
+  <script>
+    function handleSubmit(event, formId) {
+      event.preventDefault();
+      const form = document.getElementById(formId);
+      const fileInput = form.querySelector('input[type="file"]');
+      const linkInput = form.querySelector('input[type="url"]');
+
+      if (fileInput.files.length === 0 && !linkInput.value.trim()) {
+        alert("Please upload a file or enter a submission link.");
+        return;
+      }
+
+      if (fileInput.files.length > 0 && linkInput.value.trim()) {
+        alert("Please submit either a file or a link, not both.");
+        return;
+      }
+
+      if (fileInput.files.length > 0) {
+        alert(`File submitted for ${form.querySelector('h3')?.textContent || 'this assignment'}.`);
+      } else {
+        alert(`Link submitted for ${form.querySelector('h3')?.textContent || 'this assignment'}.`);
+      }
+
+      // Reset inputs after submit
+      fileInput.value = "";
+      linkInput.value = "";
+    }
+  </script>
 </body>
 </html>
