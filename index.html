@@ -1,78 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Assignments</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: linear-gradient(to right, #f8fafc, #ffffff);
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     }
-    input[type="file"]::file-selector-button {
-      @apply bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600;
+    /* Style the hidden file input button via label */
+    input[type="file"] {
+      display: none;
+    }
+    label.file-upload {
+      background-color: #4f46e5; /* indigo-600 */
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem; /* rounded-md */
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      display: inline-block;
+    }
+    label.file-upload:hover {
+      background-color: #4338ca; /* indigo-700 */
     }
   </style>
 </head>
-<body class="min-h-screen text-gray-800 font-sans">
+<body class="min-h-screen font-sans text-gray-700">
 
   <!-- Header -->
-  <header class="bg-white shadow-md py-6 px-8 flex justify-between items-center">
-    <h1 class="text-3xl font-bold">Assignments</h1>
+  <header class="bg-white shadow-md py-6 px-8">
+    <h1 class="text-3xl font-bold text-indigo-800">Assignments</h1>
   </header>
 
-  <!-- Main Content -->
-  <main class="p-8">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  <!-- Main content container -->
+  <main class="p-8 space-y-8 max-w-4xl mx-auto">
 
-      <!-- Assignment Column -->
-     <div class="bg-gradient-to-br from-white via-sky-50 to-blue-100 rounded-2xl shadow-lg p-6 hover:scale-105 transition-transform duration-300">
-  <h3 class="text-xl font-semibold mb-4 text-indigo-700">Assignment 1</h3>
-  
-  <form class="space-y-4">
-    <div>
-      <label class="block mb-1 text-sm font-medium text-slate-600">Upload File</label>
-      <input type="file" class="w-full text-sm text-gray-700 border border-gray-300 rounded" />
-    </div>
+    <!-- Assignment row template -->
+    <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
+      <h3 class="text-xl font-semibold text-indigo-700 mb-4 sm:mb-0 sm:w-48">Assignment 1</h3>
 
-    <div>
-      <label class="block mb-1 text-sm font-medium text-slate-600">Submission Link</label>
-      <input type="url" placeholder="https://example.com" class="w-full text-sm border border-gray-300 rounded px-3 py-2" />
-    </div>
+      <form class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="event.preventDefault(); alert('Submission received for Assignment 1!');">
 
-    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
-      Submit
-    </button>
-  </form>
-</div>
+        <!-- File upload -->
+        <label for="file1" class="file-upload">Upload File</label>
+        <input id="file1" type="file" />
 
+        <!-- Or text -->
+        <span class="hidden sm:inline-block text-gray-400 font-semibold">or</span>
 
-      <!-- Duplicate this block for more assignments -->
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <h3 class="text-xl font-semibold mb-4">Assignment 2</h3>
-        
-        <form class="space-y-4">
-          <div>
-            <label class="block mb-1 text-sm font-medium">Upload File</label>
-            <input type="file" class="w-full text-sm text-gray-700 border border-gray-300 rounded" />
-          </div>
-          
-          <div>
-            <label class="block mb-1 text-sm font-medium">Submission Link</label>
-            <input type="url" placeholder="https://example.com" class="w-full text-sm border border-gray-300 rounded px-3 py-2" />
-          </div>
+        <!-- Link input -->
+        <input
+          type="url"
+          placeholder="Paste submission link here"
+          class="flex-grow border border-gray-300 rounded px-4 py-2 mt-4 sm:mt-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          aria-label="Submission link"
+        />
 
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Submit
-          </button>
-        </form>
-      </div>
+        <!-- Submit button -->
+        <button
+          type="submit"
+          class="mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors"
+        >
+          Submit
+        </button>
+      </form>
+    </section>
 
-    </div>
+    <!-- Duplicate above section for more assignments -->
+
+    <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
+      <h3 class="text-xl font-semibold text-indigo-700 mb-4 sm:mb-0 sm:w-48">Assignment 2</h3>
+
+      <form class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="event.preventDefault(); alert('Submission received for Assignment 2!');">
+
+        <label for="file2" class="file-upload">Upload File</label>
+        <input id="file2" type="file" />
+
+        <span class="hidden sm:inline-block text-gray-400 font-semibold">or</span>
+
+        <input
+          type="url"
+          placeholder="Paste submission link here"
+          class="flex-grow border border-gray-300 rounded px-4 py-2 mt-4 sm:mt-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          aria-label="Submission link"
+        />
+
+        <button
+          type="submit"
+          class="mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors"
+        >
+          Submit
+        </button>
+      </form>
+    </section>
+
+    <!-- Add more assignments here by copying the above section and updating titles and IDs -->
+
   </main>
 
-  <!-- Footer Note with Your Name -->
-  <div class="fixed bottom-4 right-4 text-sm text-gray-600 bg-white bg-opacity-90 px-4 py-2 rounded shadow-md">
+  <!-- Fixed footer with your name and department -->
+  <div
+    class="fixed bottom-4 right-4 text-sm text-gray-600 bg-white bg-opacity-90 px-4 py-2 rounded shadow-md select-none"
+  >
     Aakash Thapa, Department: IBM
   </div>
 
