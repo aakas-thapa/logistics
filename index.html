@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Assignments</title>
+  <title>Logistics Assignments</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -30,62 +30,21 @@
 </head>
 <body class="min-h-screen font-sans text-gray-700">
 
-  <header class="bg-white shadow-md py-6 px-8">
-    <h1 class="text-3xl font-bold text-indigo-800">Assignments</h1>
+  <header class="bg-white shadow-md py-6 px-8 text-center">
+    <h1 class="text-3xl font-bold text-indigo-800">Logistics Assignments</h1>
   </header>
 
-  <main class="p-8 space-y-8 max-w-4xl mx-auto">
+  <main id="assignmentsContainer" class="p-8 space-y-8 max-w-4xl mx-auto">
+    <!-- Assignment rows will be inserted here dynamically -->
 
-    <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
-      <h3 class="text-xl font-semibold text-indigo-700 mb-4 sm:mb-0 sm:w-48">Assignment 1</h3>
-
-      <form id="form1" class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="handleSubmit(event, 'form1')">
-
-        <label for="file1" class="file-upload">Upload File</label>
-        <input id="file1" type="file" />
-
-        <input
-          type="url"
-          id="link1"
-          placeholder="Or paste submission link here"
-          class="flex-grow border border-gray-300 rounded px-4 py-2 mt-4 sm:mt-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          aria-label="Submission link"
-        />
-
-        <button
-          type="submit"
-          class="mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors"
-        >
-          Submit
-        </button>
-      </form>
-    </section>
-
-    <section class="bg-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
-      <h3 class="text-xl font-semibold text-indigo-700 mb-4 sm:mb-0 sm:w-48">Assignment 2</h3>
-
-      <form id="form2" class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow" onsubmit="handleSubmit(event, 'form2')">
-
-        <label for="file2" class="file-upload">Upload File</label>
-        <input id="file2" type="file" />
-
-        <input
-          type="url"
-          id="link2"
-          placeholder="Or paste submission link here"
-          class="flex-grow border border-gray-300 rounded px-4 py-2 mt-4 sm:mt-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          aria-label="Submission link"
-        />
-
-        <button
-          type="submit"
-          class="mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors"
-        >
-          Submit
-        </button>
-      </form>
-    </section>
-
+    <!-- Add Assignment Button below assignments -->
+    <button
+      id="addAssignmentBtn"
+      class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors"
+      type="button"
+    >
+      + Add Assignment
+    </button>
   </main>
 
   <div
@@ -95,32 +54,100 @@
   </div>
 
   <script>
+    let assignmentCount = 0;
+
+    function createAssignmentSection(name) {
+      assignmentCount++;
+      const section = document.createElement('section');
+      section.className = 'bg-white rounded-2xl shadow-lg p-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6';
+
+      const title = document.createElement('h3');
+      title.className = 'text-xl font-semibold text-indigo-700 mb-4 sm:mb-0 sm:w-48';
+      title.textContent = name || `Assignment ${assignmentCount}`;
+
+      const form = document.createElement('form');
+      form.className = 'flex flex-col sm:flex-row sm:items-center sm:space-x-4 flex-grow';
+      form.id = `form${assignmentCount}`;
+      form.onsubmit = (e) => handleSubmit(e, form.id);
+
+      // File Upload Label & Input
+      const label = document.createElement('label');
+      label.className = 'file-upload';
+      label.htmlFor = `file${assignmentCount}`;
+      label.textContent = 'Upload File';
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.id = `file${assignmentCount}`;
+
+      // Link input
+      const linkInput = document.createElement('input');
+      linkInput.type = 'url';
+      linkInput.placeholder = 'Or paste submission link here';
+      linkInput.className = 'flex-grow border border-gray-300 rounded px-4 py-2 mt-4 sm:mt-0 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+      linkInput.setAttribute('aria-label', 'Submission link');
+      linkInput.id = `link${assignmentCount}`;
+
+      // Submit Button
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'submit';
+      submitBtn.className = 'mt-4 sm:mt-0 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition-colors';
+      submitBtn.textContent = 'Submit';
+
+      // Append children to form
+      form.appendChild(label);
+      form.appendChild(fileInput);
+      form.appendChild(linkInput);
+      form.appendChild(submitBtn);
+
+      // Append title and form to section
+      section.appendChild(title);
+      section.appendChild(form);
+
+      return section;
+    }
+
     function handleSubmit(event, formId) {
       event.preventDefault();
       const form = document.getElementById(formId);
       const fileInput = form.querySelector('input[type="file"]');
       const linkInput = form.querySelector('input[type="url"]');
+      const assignmentTitle = form.previousSibling.textContent;
 
       if (fileInput.files.length === 0 && !linkInput.value.trim()) {
         alert("Please upload a file or enter a submission link.");
         return;
       }
-
       if (fileInput.files.length > 0 && linkInput.value.trim()) {
         alert("Please submit either a file or a link, not both.");
         return;
       }
 
       if (fileInput.files.length > 0) {
-        alert(`File submitted for ${form.querySelector('h3')?.textContent || 'this assignment'}.`);
+        alert(`File submitted for ${assignmentTitle}.`);
       } else {
-        alert(`Link submitted for ${form.querySelector('h3')?.textContent || 'this assignment'}.`);
+        alert(`Link submitted for ${assignmentTitle}.`);
       }
 
-      // Reset inputs after submit
+      // Reset inputs
       fileInput.value = "";
       linkInput.value = "";
     }
+
+    const container = document.getElementById('assignmentsContainer');
+    const addBtn = document.getElementById('addAssignmentBtn');
+
+    // Insert initial assignments above button
+    container.insertBefore(createAssignmentSection('Assignment 1'), addBtn);
+    container.insertBefore(createAssignmentSection('Assignment 2'), addBtn);
+
+    // Add new assignment on button click (insert above button)
+    addBtn.addEventListener('click', () => {
+      const newAssignment = createAssignmentSection();
+      container.insertBefore(newAssignment, addBtn);
+      newAssignment.scrollIntoView({ behavior: 'smooth' });
+    });
   </script>
+
 </body>
 </html>
