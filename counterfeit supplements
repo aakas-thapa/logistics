@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Assignment Page</title>
+</head>
+<body>
+  <h1>Assignment Link</h1>
+  <p>View the Google Docs assignment <a href="https://docs.google.com/spreadsheets/d/1846iPo-rTSzVWpKtABI8Sm7YWZJrCeyFIt83xxlXA44/edit?gid=0#gid=0" target="_blank">here</a>.</p>
+</body>
+</html>
