@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Warehouse Slotting Optimizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #fce4ec);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+    }
+
+    input[type="file"],
+    input[type="number"],
+    input[type="text"] {
+      padding: 6px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #26a69a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00796b;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    #output {
+      margin-top: 30px;
+    }
+
+    p {
+      background: #f9fbe7;
+      padding: 12px;
+      border-left: 4px solid #cddc39;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📦 Warehouse Slotting Optimizer</h2>
+
+    <label>Upload Pick-Frequency CSV:</label>
+    <input type="file" id="csvFile" accept=".csv">
+
+    <label>Dock Location (row,col):</label>
+    <input type="number" id="dockRow" value="0">,
+    <input type="number" id="dockCol" value="0">
+
+    <label>Obstacle Positions (e.g., 1,2;3,4):</label>
+    <input type="text" id="obstacles" placeholder="row,col;row,col">
+
+    <button onclick="processCSV()">Run Slotting Optimization</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function processCSV() {
+      const fileInput = document.getElementById('csvFile');
+      const dockRow = parseInt(document.getElementById('dockRow').value);
+      const dockCol = parseInt(document.getElementById('dockCol').value);
+      const obstacleStr = document.getElementById('obstacles').value;
+      const obstacleSet = new Set(obstacleStr.split(';').map(p => p.trim()).filter(Boolean));
+
+      if (!fileInput.files.length) return alert("Please upload a CSV.");
+
+      Papa.parse(fileInput.files[0], {
+        complete: (results) => {
+          const grid = results.data.filter(row => row.length);
+          const numRows = grid.length;
+          const numCols = grid[0].length;
+
+          let skus = [];
+          let totalPicks = 0;
+          for (let r = 0; r < numRows; r++) {
+            for (let c = 0; c < numCols; c++) {
+              const freq = parseFloat(grid[r][c]);
+              const pos = `${r},${c}`;
+              if (!isNaN(freq)) {
+                skus.push({ sku: `SKU${skus.length}`, row: r, col: c, freq, pos });
+                totalPicks += freq;
+              }
+            }
+          }
+
+          skus.sort((a, b) => b.freq - a.freq);
+          let cum = 0;
+          skus.forEach((s, i) => {
+            cum += s.freq;
+            s.cumPercent = ((cum / totalPicks) * 100).toFixed(2);
+            if (s.cumPercent <= 20) s.class = 'A';
+            else if (s.cumPercent <= 50) s.class = 'B';
+            else s.class = 'C';
+          });
+
+          skus.forEach(s => {
+            s.dist = Math.abs(s.row - dockRow) + Math.abs(s.col - dockCol);
+          });
+
+          const availableSlots = [];
+          for (let r = 0; r < numRows; r++) {
+            for (let c = 0; c < numCols; c++) {
+              const key = `${r},${c}`;
+              if (!obstacleSet.has(key)) {
+                const dist = Math.abs(r - dockRow) + Math.abs(c - dockCol);
+                availableSlots.push({ row: r, col: c, dist, key });
+              }
+            }
+          }
+          availableSlots.sort((a, b) => a.dist - b.dist);
+
+          const sortedSKUs = [...skus].sort((a, b) => {
+            const classOrder = { A: 0, B: 1, C: 2 };
+            return classOrder[a.class] - classOrder[b.class];
+          });
+
+          const assignedMap = {};
+          sortedSKUs.forEach((s, i) => {
+            let slot = availableSlots.shift();
+            s.newRow = slot.row;
+            s.newCol = slot.col;
+            s.newPos = slot.key;
+            assignedMap[slot.key] = s.sku;
+          });
+
+          const newGrid = Array.from({ length: numRows }, () =>
+            Array.from({ length: numCols }, () => 'X'));
+
+          sortedSKUs.forEach(s => {
+            newGrid[s.newRow][s.newCol] = s.sku;
+          });
+
+          let mapHTML = "<h3>📋 SKU Mapping Table</h3><table><tr><th>SKU</th><th>Freq</th><th>ABC</th><th>Old Pos</th><th>New Pos</th></tr>";
+          skus.forEach(s => {
+            mapHTML += `<tr><td>${s.sku}</td><td>${s.freq}</td><td>${s.class}</td><td>${s.pos}</td><td>${s.newPos}</td></tr>`;
+          });
+          mapHTML += "</table>";
+
+          const justification = `<p>🚪 <strong>Dock Position:</strong> (${dockRow},${dockCol}) – Placing the dock centrally minimizes total pick travel distance, improving overall efficiency.</p>`;
+
+          let gridHTML = "<h3>📊 Optimized Layout Grid</h3><table>";
+          newGrid.forEach(row => {
+            gridHTML += "<tr>";
+            row.forEach(cell => {
+              const display = cell === 'X' ? '-' : cell;
+              gridHTML += `<td>${display}</td>`;
+            });
+            gridHTML += "</tr>";
+          });
+          gridHTML += "</table>";
+
+          document.getElementById('output').innerHTML = justification + gridHTML + mapHTML;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
